@@ -1,0 +1,87 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 8 * * *'    # 8h UTC
+    - cron: '0 13 * * *'   # 13h UTC
+    - cron: '0 19 * * *'   # 19h UTC
+  workflow_dispatch:
+
+jobs:
+  simulate-user:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visite page accueil - charge les secteurs
+        run: |
+          sleep $((RANDOM % 5))
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/sectors?select=*&is_active=eq.true&order=display_order"
+          echo "✅ Secteurs chargés"
+
+      - name: Pause naturelle
+        run: sleep $((RANDOM % 8 + 3))
+
+      - name: Visite page services
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/services?select=*&status=eq.published&order=display_order"
+          echo "✅ Services chargés"
+
+      - name: Pause naturelle
+        run: sleep $((RANDOM % 6 + 2))
+
+      - name: Visite page avis clients
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/reviews?select=*&status=eq.approved&order=created_at.desc&limit=10"
+          echo "✅ Avis chargés"
+
+      - name: Pause naturelle
+        run: sleep $((RANDOM % 10 + 4))
+
+      - name: Visite galerie médias
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/media?select=*&order=created_at.desc&limit=20"
+          echo "✅ Médias chargés"
+
+      - name: Pause naturelle
+        run: sleep $((RANDOM % 7 + 2))
+
+      - name: Visite page marketplace
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/marketplace_products?select=*&status=eq.active&order=created_at.desc"
+          echo "✅ Marketplace chargée"
+
+      - name: Pause naturelle
+        run: sleep $((RANDOM % 5 + 2))
+
+      - name: Visite page clients
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/clients?select=*&is_active=eq.true&order=display_order"
+          echo "✅ Clients chargés"
+
+      - name: Ping storage
+        run: |
+          curl -s -o /dev/null \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/storage/v1/bucket"
+          echo "✅ Storage pingé"
+
+      - name: Done
+        run: echo "🎉 Simulation utilisateur terminée - $(date)"
