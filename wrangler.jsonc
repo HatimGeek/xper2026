@@ -1,6 +1,6 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "xpercuir-leather-craft",
+    "name": "xper2026",
     "compatibility_date": "2025-09-27",
     "observability": {
         "enabled": true
